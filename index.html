@@ -5,8 +5,153 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="main.js"></script>
+
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=8ac7e2077f27a4c6f9b51ee256d5dd18&libraries=services"></script>
   </head>
   <body>
-    <h1>hi</h1>
+    <div class="main">
+      <!-- NAV -->
+      <div class="main_nav"></div>
+
+      <!-- Canvan -->
+      <div class="main_canvan">
+        <!-- first item -->
+        <div class="plan_item">
+          <div class="plan_item_left">
+            <div class="plan_item_left_index">
+              <div class="plan_item_left_index_circle">1</div>
+            </div>
+            <div class="plan_item_left_line">
+              <div class="plan_item_left_line_real"></div>
+            </div>
+          </div>
+          <div class="plan_item_right">
+            <div class="right_wrapper">
+              <div class="plan_item_right_top">
+                <div class="plan_item_right_top_time">14:00 - 16:00</div>
+              </div>
+              <div class="plan_item_right_bottom">
+                <div class="plan_item_right_bottom_desc">
+                  <div class="plan_item_right_bottom_desc_category">숙소</div>
+                  <div class="plan_item_right_bottom_desc_name">메종 글래드 제주</div>
+                  <div class="plan_item_right_bottom_desc_memo">메모를 입력하세요.</div>
+                </div>
+                <div class="right_divider"></div>
+                <div class="plan_item_right_bottom_img_area">
+                  <img class="plan_item_right_bottom_img" src="image/dummy.png" alt="" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 동선 -->
+        <div class="move_time">
+          <img class="move_time_car" src="image/car.png" alt="" />
+          <div class="move_time_time">40분</div>
+          <div class="move_time_to">경로 보기</div>
+        </div>
+
+        <!-- middle item -->
+        <div class="plan_item">
+          <div class="plan_item_left">
+            <div class="mid_plan_item_left_line_one">
+              <div class="plan_item_left_line_real"></div>
+            </div>
+            <div class="mid_plan_item_left_index">
+              <div class="mid_plan_item_left_index_circle">2</div>
+              <div class="plan_item_left_index_line"></div>
+            </div>
+            <div class="mid_plan_item_left_line_two">
+              <div class="plan_item_left_line_real"></div>
+            </div>
+          </div>
+          <div class="plan_item_right">
+            <div class="right_wrapper">
+              <div class="plan_item_right_top">
+                <div class="plan_item_right_top_time">14:00 - 16:00</div>
+              </div>
+              <div class="plan_item_right_bottom">
+                <div class="plan_item_right_bottom_desc">
+                  <div class="plan_item_right_bottom_desc_category">숙소</div>
+                  <div class="plan_item_right_bottom_desc_name">메종 글래드 제주</div>
+                  <div class="plan_item_right_bottom_desc_memo">메모를 입력하세요.</div>
+                </div>
+                <div class="right_divider"></div>
+                <div class="plan_item_right_bottom_img_area">
+                  <img class="plan_item_right_bottom_img" src="image/dummy.png" alt="" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 동선 -->
+        <div class="move_time">
+          <img class="move_time_car" src="image/car.png" alt="" />
+          <div class="move_time_time">44분</div>
+          <div class="move_time_to">경로 보기</div>
+        </div>
+
+        <!-- last item -->
+        <div class="plan_item">
+          <div class="plan_item_left">
+            <div class="last_plan_item_left_line_one">
+              <div class="plan_item_left_line_real"></div>
+            </div>
+            <div class="last_plan_item_left_index">
+              <div class="mid_plan_item_left_index_circle">3</div>
+              <div class="plan_item_left_index_line"></div>
+            </div>
+            <div class="last_plan_item_left_line_two">
+              <div class="last_plan_item_left_line_real"></div>
+              <div class="last_plan_item_left_line_real_circle"></div>
+            </div>
+          </div>
+          <div class="plan_item_right">
+            <div class="right_wrapper">
+              <div class="plan_item_right_top">
+                <div class="plan_item_right_top_time">14:00 - 16:00</div>
+              </div>
+              <div class="plan_item_right_bottom">
+                <div class="plan_item_right_bottom_desc">
+                  <div class="plan_item_right_bottom_desc_category">숙소</div>
+                  <div class="plan_item_right_bottom_desc_name">메종 글래드 제주</div>
+                  <div class="plan_item_right_bottom_desc_memo">메모를 입력하세요.</div>
+                </div>
+                <div class="right_divider"></div>
+                <div class="plan_item_right_bottom_img_area">
+                  <img class="plan_item_right_bottom_img" src="image/dummy.png" alt="" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map -->
+      <div class="main_map">
+        <div class="map_wrap">
+          <div id="map" style="width: 100%; height: 100%"></div>
+
+          <!-- overlay -->
+          <div id="menu_wrap" class="bg_white">
+            <div class="option">
+              <div>
+                <form onsubmit="searchPlaces(); return false;">
+                  키워드 : <input type="text" value="해운대" id="keyword" size="15" />
+                  <button type="submit">검색하기</button>
+                </form>
+              </div>
+            </div>
+            <hr />
+            <ul id="placesList"></ul>
+            <div id="pagination"></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
