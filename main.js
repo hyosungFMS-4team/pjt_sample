@@ -124,7 +124,7 @@ function getListItem(index, places) {
 
   // TODO:
   el.addEventListener('click', () => {
-    console.log(places);
+    addTravelPlanItem(places);
   });
 
   return el;
@@ -132,6 +132,45 @@ function getListItem(index, places) {
 
 function createTravelplanItem(places) {
   console.log(places);
+  fetchHTML(places.place_name).then(res => {
+    console.log(res);
+    extractInfoFromHTML(res);
+  });
+}
+
+async function fetchHTML(place_name) {
+  try {
+    const url = `https://www.google.com/search?q=${place_name}`;
+
+    const response = await fetch(url);
+    console.log(response);
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const html = await response.text();
+    return html;
+  } catch (error) {
+    console.error('Error fetching HTML:', error);
+    return null;
+  }
+}
+
+// HTML에서 원하는 정보를 추출하는 함수
+function extractInfoFromHTML(html) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+
+  console.log(doc);
+  const imgElement = doc.getElementById('dimg_61');
+  console.log(imgElement);
+
+  // const imageElement = doc.querySelector('.bg_present');
+  // doc.querySelector();
+  // console.log(imageElement);
+  // const title = titleElement ? titleElement.textContent.trim() : 'Title not found';
+
+  // return title;
 }
 
 // 마커를 생성하고 지도 위에 마커를 표시하는 함수입니다
@@ -209,3 +248,415 @@ function removeAllChildNods(el) {
     el.removeChild(el.lastChild);
   }
 }
+
+// ===============================================================
+//                         ITEM ADD
+// ===============================================================
+
+document.addEventListener('DOMContentLoaded', () => {
+  // FIXME: 백엔드 연결하면 여기서 최초 데이터 받아오기
+  renderTasks();
+});
+
+const travelPlanList = document.querySelector('.main_canvan');
+let travelPlanItems = [];
+
+function renderTasks() {
+  // let existingIds = new Set();
+
+  while (travelPlanList.firstChild) {
+    travelPlanList.removeChild(travelPlanList.firstChild);
+  }
+
+  travelPlanItems.forEach((item, idx) => {
+    const taskElement = isNindxItem(item, idx);
+    // TODO: 이동 시간 태그 추가
+
+    console.log(taskElement);
+    travelPlanList.appendChild(taskElement);
+  });
+}
+
+function addTravelPlanItem(places) {
+  let currentDate = new Date();
+  let milliseconds = currentDate.getMilliseconds();
+  let formattedDate = `${currentDate.getFullYear()}${('0' + (currentDate.getMonth() + 1)).slice(-2)}${('0' + currentDate.getDate()).slice(-2)}_${(
+    '0' + currentDate.getHours()
+  ).slice(-2)}${('0' + currentDate.getMinutes()).slice(-2)}${('0' + currentDate.getSeconds()).slice(-2)}_${milliseconds}`;
+
+  const newTravelPlanItem = {
+    id: `${formattedDate}_clinetname`, // FIXME: 실제 클라이언트 이름으로 교체
+    road_address_name: places.road_address_name,
+    category_group_name: places.category_group_name,
+    place_name: places.place_name,
+    lat: places.x,
+    lng: places.y,
+    img_path: places.place_url,
+  };
+
+  travelPlanItems.push(newTravelPlanItem);
+
+  // console.log(newTravelPlanItem);
+  // console.log(travelPlanItems);
+  renderTasks();
+}
+
+function isNindxItem(item, idx) {
+  let tagItem;
+  if (idx == 0) tagItem = createFirstItem(item.road_address_name, item.category_group_name, item.place_name, item.x, item.y);
+  else if (idx == travelPlanItems.length - 1)
+    tagItem = createLastItem(item.road_address_name, item.category_group_name, item.place_name, item.x, item.y, idx + 1);
+  else tagItem = createMiddleItem(item.road_address_name, item.category_group_name, item.place_name, item.x, item.y, idx + 1);
+
+  return tagItem;
+}
+
+function createFirstItem(road_address_name, category_group_name, place_name, x, y) {
+  var liElement = document.createElement('li');
+  liElement.classList.add('plan_item');
+
+  // 왼쪽 부분 생성
+  var leftDiv = document.createElement('div');
+  leftDiv.classList.add('plan_item_left');
+
+  // 왼쪽 인덱스 생성
+  var leftIndexDiv = document.createElement('div');
+  leftIndexDiv.classList.add('plan_item_left_index');
+
+  var indexCircleDiv = document.createElement('div');
+  indexCircleDiv.classList.add('plan_item_left_index_circle');
+  indexCircleDiv.textContent = 1;
+
+  leftIndexDiv.appendChild(indexCircleDiv);
+
+  // 왼쪽 선 생성
+  var leftLineDiv = document.createElement('div');
+  leftLineDiv.classList.add('plan_item_left_line');
+
+  var leftLineRealDiv = document.createElement('div');
+  leftLineRealDiv.classList.add('plan_item_left_line_real');
+
+  leftLineDiv.appendChild(leftLineRealDiv);
+
+  leftDiv.appendChild(leftIndexDiv);
+  leftDiv.appendChild(leftLineDiv);
+
+  // 오른쪽 부분 생성
+  var rightDiv = document.createElement('div');
+  rightDiv.classList.add('plan_item_right');
+
+  var rightWrapperDiv = document.createElement('div');
+  rightWrapperDiv.classList.add('right_wrapper');
+
+  var rightTopDiv = document.createElement('div');
+  rightTopDiv.classList.add('plan_item_right_top');
+
+  var rightTopTimeDiv = document.createElement('div');
+  rightTopTimeDiv.classList.add('plan_item_right_top_time');
+  rightTopTimeDiv.textContent = '14:00 - 16:00'; // FIXME: 시간 데이터 나중에 변경
+
+  rightTopDiv.appendChild(rightTopTimeDiv);
+
+  var rightBottomDiv = document.createElement('div');
+  rightBottomDiv.classList.add('plan_item_right_bottom');
+
+  var rightBottomDescDiv = document.createElement('div');
+  rightBottomDescDiv.classList.add('plan_item_right_bottom_desc');
+
+  var categoryDiv = document.createElement('div');
+  categoryDiv.classList.add('plan_item_right_bottom_desc_category');
+  categoryDiv.textContent = category_group_name;
+
+  var nameDiv = document.createElement('div');
+  nameDiv.classList.add('plan_item_right_bottom_desc_name');
+  nameDiv.textContent = place_name;
+
+  var memoDiv = document.createElement('div');
+  memoDiv.classList.add('plan_item_right_bottom_desc_memo');
+  memoDiv.textContent = '메모를 입력하세요.';
+
+  rightBottomDescDiv.appendChild(categoryDiv);
+  rightBottomDescDiv.appendChild(nameDiv);
+  rightBottomDescDiv.appendChild(memoDiv);
+
+  var rightDividerDiv = document.createElement('div');
+  rightDividerDiv.classList.add('right_divider');
+
+  var imgAreaDiv = document.createElement('div');
+  imgAreaDiv.classList.add('plan_item_right_bottom_img_area');
+
+  var imgElement = document.createElement('img');
+  imgElement.classList.add('plan_item_right_bottom_img');
+  imgElement.src = 'image/dummy.png';
+  imgElement.alt = '';
+
+  imgAreaDiv.appendChild(imgElement);
+
+  rightBottomDiv.appendChild(rightBottomDescDiv);
+  rightBottomDiv.appendChild(rightDividerDiv);
+  rightBottomDiv.appendChild(imgAreaDiv);
+
+  rightWrapperDiv.appendChild(rightTopDiv);
+  rightWrapperDiv.appendChild(rightBottomDiv);
+
+  rightDiv.appendChild(rightWrapperDiv);
+
+  liElement.appendChild(leftDiv);
+  liElement.appendChild(rightDiv);
+
+  return liElement;
+}
+
+function createMiddleItem(road_address_name, category_group_name, place_name, x, y, idx) {
+  // li 요소 생성
+  var liElement = document.createElement('li');
+  liElement.classList.add('plan_item');
+
+  // 왼쪽 부분 생성
+  var leftDiv = document.createElement('div');
+  leftDiv.classList.add('plan_item_left');
+
+  // 첫 번째 선 생성
+  var midPlanItemLeftLineOneDiv = document.createElement('div');
+  midPlanItemLeftLineOneDiv.classList.add('mid_plan_item_left_line_one');
+
+  var leftLineOneDiv = document.createElement('div');
+  leftLineOneDiv.classList.add('plan_item_left_line_real');
+
+  midPlanItemLeftLineOneDiv.appendChild(leftLineOneDiv);
+
+  // 왼쪽 인덱스 생성
+  var midPlanItemLeftIndexDiv = document.createElement('div');
+  midPlanItemLeftIndexDiv.classList.add('mid_plan_item_left_index');
+
+  var midPlanItemLeftIndexCircleDiv = document.createElement('div');
+  midPlanItemLeftIndexCircleDiv.classList.add('mid_plan_item_left_index_circle');
+  midPlanItemLeftIndexCircleDiv.textContent = idx;
+
+  var planItemLeftIndexLineDiv = document.createElement('div');
+  planItemLeftIndexLineDiv.classList.add('plan_item_left_index_line');
+
+  midPlanItemLeftIndexDiv.appendChild(midPlanItemLeftIndexCircleDiv);
+  midPlanItemLeftIndexDiv.appendChild(planItemLeftIndexLineDiv);
+
+  // 두 번째 선 생성
+  var midPlanItemLeftLineTwoDiv = document.createElement('div');
+  midPlanItemLeftLineTwoDiv.classList.add('mid_plan_item_left_line_two');
+
+  var leftLineTwoDiv = document.createElement('div');
+  leftLineTwoDiv.classList.add('plan_item_left_line_real');
+
+  midPlanItemLeftLineTwoDiv.appendChild(leftLineTwoDiv);
+
+  leftDiv.appendChild(midPlanItemLeftLineOneDiv);
+  leftDiv.appendChild(midPlanItemLeftIndexDiv);
+  leftDiv.appendChild(midPlanItemLeftLineTwoDiv);
+
+  // 오른쪽 부분 생성
+  var rightDiv = document.createElement('div');
+  rightDiv.classList.add('plan_item_right');
+
+  var rightWrapperDiv = document.createElement('div');
+  rightWrapperDiv.classList.add('right_wrapper');
+
+  var rightTopDiv = document.createElement('div');
+  rightTopDiv.classList.add('plan_item_right_top');
+
+  var rightTopTimeDiv = document.createElement('div');
+  rightTopTimeDiv.classList.add('plan_item_right_top_time');
+  rightTopTimeDiv.textContent = '16:00 - 18:00'; // FIXME: 시간 바꾸기
+
+  rightTopDiv.appendChild(rightTopTimeDiv);
+
+  var rightBottomDiv = document.createElement('div');
+  rightBottomDiv.classList.add('plan_item_right_bottom');
+
+  var rightBottomDescDiv = document.createElement('div');
+  rightBottomDescDiv.classList.add('plan_item_right_bottom_desc');
+
+  var categoryDiv = document.createElement('div');
+  categoryDiv.classList.add('plan_item_right_bottom_desc_category');
+  categoryDiv.textContent = category_group_name;
+
+  var nameDiv = document.createElement('div');
+  nameDiv.classList.add('plan_item_right_bottom_desc_name');
+  nameDiv.textContent = place_name;
+
+  var memoDiv = document.createElement('div');
+  memoDiv.classList.add('plan_item_right_bottom_desc_memo');
+  memoDiv.textContent = '메모를 입력하세요.';
+
+  rightBottomDescDiv.appendChild(categoryDiv);
+  rightBottomDescDiv.appendChild(nameDiv);
+  rightBottomDescDiv.appendChild(memoDiv);
+
+  var rightDividerDiv = document.createElement('div');
+  rightDividerDiv.classList.add('right_divider');
+
+  var imgAreaDiv = document.createElement('div');
+  imgAreaDiv.classList.add('plan_item_right_bottom_img_area');
+
+  var imgElement = document.createElement('img');
+  imgElement.classList.add('plan_item_right_bottom_img');
+  imgElement.src = 'image/dummy.png';
+  imgElement.alt = '';
+
+  imgAreaDiv.appendChild(imgElement);
+
+  rightBottomDiv.appendChild(rightBottomDescDiv);
+  rightBottomDiv.appendChild(rightDividerDiv);
+  rightBottomDiv.appendChild(imgAreaDiv);
+
+  rightWrapperDiv.appendChild(rightTopDiv);
+  rightWrapperDiv.appendChild(rightBottomDiv);
+
+  rightDiv.appendChild(rightWrapperDiv);
+
+  liElement.appendChild(leftDiv);
+  liElement.appendChild(rightDiv);
+
+  return liElement;
+}
+
+function createLastItem(road_address_name, category_group_name, place_name, x, y, idx) {
+  // li 요소 생성
+  var liElement = document.createElement('li');
+  liElement.classList.add('plan_item');
+
+  // 왼쪽 부분 생성
+  var leftDiv = document.createElement('div');
+  leftDiv.classList.add('plan_item_left');
+
+  // 첫 번째 선 생성
+  var lastPlanItemLeftLineOneDiv = document.createElement('div');
+  lastPlanItemLeftLineOneDiv.classList.add('last_plan_item_left_line_one');
+
+  var leftLineOneDiv = document.createElement('div');
+  leftLineOneDiv.classList.add('plan_item_left_line_real');
+
+  lastPlanItemLeftLineOneDiv.appendChild(leftLineOneDiv);
+
+  // 왼쪽 인덱스 생성
+  var lastPlanItemLeftIndexDiv = document.createElement('div');
+  lastPlanItemLeftIndexDiv.classList.add('last_plan_item_left_index');
+
+  var midPlanItemLeftIndexCircleDiv = document.createElement('div');
+  midPlanItemLeftIndexCircleDiv.classList.add('mid_plan_item_left_index_circle');
+  midPlanItemLeftIndexCircleDiv.textContent = idx;
+
+  var planItemLeftIndexLineDiv = document.createElement('div');
+  planItemLeftIndexLineDiv.classList.add('plan_item_left_index_line');
+
+  lastPlanItemLeftIndexDiv.appendChild(midPlanItemLeftIndexCircleDiv);
+  lastPlanItemLeftIndexDiv.appendChild(planItemLeftIndexLineDiv);
+
+  // 두 번째 선 생성
+  var lastPlanItemLeftLineTwoDiv = document.createElement('div');
+  lastPlanItemLeftLineTwoDiv.classList.add('last_plan_item_left_line_two');
+
+  var leftLineTwoDiv = document.createElement('div');
+  leftLineTwoDiv.classList.add('last_plan_item_left_line_real');
+
+  var leftLineTwoCircleDiv = document.createElement('div');
+  leftLineTwoCircleDiv.classList.add('last_plan_item_left_line_real_circle');
+
+  lastPlanItemLeftLineTwoDiv.appendChild(leftLineTwoDiv);
+  lastPlanItemLeftLineTwoDiv.appendChild(leftLineTwoCircleDiv);
+
+  leftDiv.appendChild(lastPlanItemLeftLineOneDiv);
+  leftDiv.appendChild(lastPlanItemLeftIndexDiv);
+  leftDiv.appendChild(lastPlanItemLeftLineTwoDiv);
+
+  // 오른쪽 부분 생성
+  var rightDiv = document.createElement('div');
+  rightDiv.classList.add('plan_item_right');
+
+  var rightWrapperDiv = document.createElement('div');
+  rightWrapperDiv.classList.add('right_wrapper');
+
+  var rightTopDiv = document.createElement('div');
+  rightTopDiv.classList.add('plan_item_right_top');
+
+  var rightTopTimeDiv = document.createElement('div');
+  rightTopTimeDiv.classList.add('plan_item_right_top_time');
+  rightTopTimeDiv.textContent = '19:00 - 20:00';
+
+  rightTopDiv.appendChild(rightTopTimeDiv);
+
+  var rightBottomDiv = document.createElement('div');
+  rightBottomDiv.classList.add('plan_item_right_bottom');
+
+  var rightBottomDescDiv = document.createElement('div');
+  rightBottomDescDiv.classList.add('plan_item_right_bottom_desc');
+
+  var categoryDiv = document.createElement('div');
+  categoryDiv.classList.add('plan_item_right_bottom_desc_category');
+  categoryDiv.textContent = category_group_name;
+
+  var nameDiv = document.createElement('div');
+  nameDiv.classList.add('plan_item_right_bottom_desc_name');
+  nameDiv.textContent = place_name;
+
+  var memoDiv = document.createElement('div');
+  memoDiv.classList.add('plan_item_right_bottom_desc_memo');
+  memoDiv.textContent = '메모를 입력하세요.';
+
+  rightBottomDescDiv.appendChild(categoryDiv);
+  rightBottomDescDiv.appendChild(nameDiv);
+  rightBottomDescDiv.appendChild(memoDiv);
+
+  var rightDividerDiv = document.createElement('div');
+  rightDividerDiv.classList.add('right_divider');
+
+  var imgAreaDiv = document.createElement('div');
+  imgAreaDiv.classList.add('plan_item_right_bottom_img_area');
+
+  var imgElement = document.createElement('img');
+  imgElement.classList.add('plan_item_right_bottom_img');
+  imgElement.src = 'image/dummy.png';
+  imgElement.alt = '';
+
+  imgAreaDiv.appendChild(imgElement);
+
+  rightBottomDiv.appendChild(rightBottomDescDiv);
+  rightBottomDiv.appendChild(rightDividerDiv);
+  rightBottomDiv.appendChild(imgAreaDiv);
+
+  rightWrapperDiv.appendChild(rightTopDiv);
+  rightWrapperDiv.appendChild(rightBottomDiv);
+
+  rightDiv.appendChild(rightWrapperDiv);
+
+  liElement.appendChild(leftDiv);
+  liElement.appendChild(rightDiv);
+
+  return liElement;
+}
+
+function createMoveTimeElement(time) {
+  let liElement = document.createElement('li');
+  liElement.classList.add('move_time');
+
+  let imgElement = document.createElement('img');
+  imgElement.classList.add('move_time_car');
+  imgElement.src = 'image/car.png';
+  imgElement.alt = '';
+
+  let timeElement = document.createElement('div');
+  timeElement.classList.add('move_time_time');
+  timeElement.textContent = time + '분';
+
+  let toElement = document.createElement('div');
+  toElement.classList.add('move_time_to');
+  toElement.textContent = '경로 보기';
+
+  liElement.appendChild(imgElement);
+  liElement.appendChild(timeElement);
+  liElement.appendChild(toElement);
+
+  return liElement;
+}
+
+// =======================================================
+
+// renderTask();

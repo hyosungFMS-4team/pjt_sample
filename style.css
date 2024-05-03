@@ -26,12 +26,15 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 1%;
+  padding: 0px;
+  overflow-y: scroll;
 }
 
 .plan_item {
   display: flex;
   width: 90%;
   height: 200px;
+  min-height: 200px;
 }
 
 .plan_item_left {
