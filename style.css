@@ -35,6 +35,7 @@ body {
   width: 90%;
   height: 200px;
   min-height: 200px;
+  position: relative;
 }
 
 .plan_item_left {
@@ -184,6 +185,18 @@ body {
   flex: 1.5;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+}
+
+.plan_item_close_btn {
+  width: 15px;
+  height: 15px;
+  transition: all 250ms ease-in-out;
+}
+
+.plan_item_close_btn:hover {
+  transform: scale(1.15);
+  cursor: pointer;
 }
 
 .plan_item_right_top_time {

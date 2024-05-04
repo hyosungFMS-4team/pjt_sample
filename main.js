@@ -262,8 +262,6 @@ const travelPlanList = document.querySelector('.main_canvan');
 let travelPlanItems = [];
 
 function renderTasks() {
-  // let existingIds = new Set();
-
   while (travelPlanList.firstChild) {
     travelPlanList.removeChild(travelPlanList.firstChild);
   }
@@ -277,12 +275,21 @@ function renderTasks() {
   });
 }
 
+function deleteRender(idx) {
+  const taskToRemove = document.getElementById(idx);
+  if (taskToRemove) {
+    items.removeChild(taskToRemove);
+  }
+}
+
 function addTravelPlanItem(places) {
   let currentDate = new Date();
   let milliseconds = currentDate.getMilliseconds();
-  let formattedDate = `${currentDate.getFullYear()}${('0' + (currentDate.getMonth() + 1)).slice(-2)}${('0' + currentDate.getDate()).slice(-2)}_${(
+  let formattedDate = `${currentDate.getFullYear()}${('0' + (currentDate.getMonth() + 1)).slice(-2)}${('0' + currentDate.getDate()).slice(-2)}${(
     '0' + currentDate.getHours()
-  ).slice(-2)}${('0' + currentDate.getMinutes()).slice(-2)}${('0' + currentDate.getSeconds()).slice(-2)}_${milliseconds}`;
+  ).slice(-2)}${('0' + currentDate.getMinutes()).slice(-2)}${('0' + currentDate.getSeconds()).slice(-2)}${milliseconds}`;
+
+  console.log(typeof formattedDate);
 
   const newTravelPlanItem = {
     id: `${formattedDate}_clinetname`, // FIXME: 실제 클라이언트 이름으로 교체
@@ -296,44 +303,48 @@ function addTravelPlanItem(places) {
 
   travelPlanItems.push(newTravelPlanItem);
 
-  // console.log(newTravelPlanItem);
-  // console.log(travelPlanItems);
+  renderTasks();
+}
+
+function deleteItem(itemId) {
+  travelPlanItems = travelPlanItems.filter(item => item.id !== itemId);
   renderTasks();
 }
 
 function isNindxItem(item, idx) {
   let tagItem;
-  if (idx == 0) tagItem = createFirstItem(item.road_address_name, item.category_group_name, item.place_name, item.x, item.y);
+  if (idx == 0) tagItem = createFirstItem(item.id, item.road_address_name, item.category_group_name, item.place_name, item.x, item.y);
   else if (idx == travelPlanItems.length - 1)
-    tagItem = createLastItem(item.road_address_name, item.category_group_name, item.place_name, item.x, item.y, idx + 1);
-  else tagItem = createMiddleItem(item.road_address_name, item.category_group_name, item.place_name, item.x, item.y, idx + 1);
+    tagItem = createLastItem(item.id, item.road_address_name, item.category_group_name, item.place_name, item.x, item.y, idx + 1);
+  else tagItem = createMiddleItem(item.id, item.road_address_name, item.category_group_name, item.place_name, item.x, item.y, idx + 1);
 
   return tagItem;
 }
 
-function createFirstItem(road_address_name, category_group_name, place_name, x, y) {
-  var liElement = document.createElement('li');
+function createFirstItem(id, road_address_name, category_group_name, place_name, x, y) {
+  let liElement = document.createElement('li');
   liElement.classList.add('plan_item');
+  liElement.id = id;
 
   // 왼쪽 부분 생성
-  var leftDiv = document.createElement('div');
+  let leftDiv = document.createElement('div');
   leftDiv.classList.add('plan_item_left');
 
   // 왼쪽 인덱스 생성
-  var leftIndexDiv = document.createElement('div');
+  let leftIndexDiv = document.createElement('div');
   leftIndexDiv.classList.add('plan_item_left_index');
 
-  var indexCircleDiv = document.createElement('div');
+  let indexCircleDiv = document.createElement('div');
   indexCircleDiv.classList.add('plan_item_left_index_circle');
   indexCircleDiv.textContent = 1;
 
   leftIndexDiv.appendChild(indexCircleDiv);
 
   // 왼쪽 선 생성
-  var leftLineDiv = document.createElement('div');
+  let leftLineDiv = document.createElement('div');
   leftLineDiv.classList.add('plan_item_left_line');
 
-  var leftLineRealDiv = document.createElement('div');
+  let leftLineRealDiv = document.createElement('div');
   leftLineRealDiv.classList.add('plan_item_left_line_real');
 
   leftLineDiv.appendChild(leftLineRealDiv);
@@ -342,36 +353,42 @@ function createFirstItem(road_address_name, category_group_name, place_name, x, 
   leftDiv.appendChild(leftLineDiv);
 
   // 오른쪽 부분 생성
-  var rightDiv = document.createElement('div');
+  let rightDiv = document.createElement('div');
   rightDiv.classList.add('plan_item_right');
 
-  var rightWrapperDiv = document.createElement('div');
+  let rightWrapperDiv = document.createElement('div');
   rightWrapperDiv.classList.add('right_wrapper');
 
-  var rightTopDiv = document.createElement('div');
+  let rightTopDiv = document.createElement('div');
   rightTopDiv.classList.add('plan_item_right_top');
 
-  var rightTopTimeDiv = document.createElement('div');
+  let rightTopTimeDiv = document.createElement('div');
   rightTopTimeDiv.classList.add('plan_item_right_top_time');
   rightTopTimeDiv.textContent = '14:00 - 16:00'; // FIXME: 시간 데이터 나중에 변경
 
-  rightTopDiv.appendChild(rightTopTimeDiv);
+  let rightTopCloseBtn = document.createElement('img');
+  rightTopCloseBtn.classList.add('plan_item_close_btn');
+  rightTopCloseBtn.src = 'image/close.png';
+  rightTopCloseBtn.setAttribute('onclick', `deleteItem("${id}")`);
 
-  var rightBottomDiv = document.createElement('div');
+  rightTopDiv.appendChild(rightTopTimeDiv);
+  rightTopDiv.appendChild(rightTopCloseBtn);
+
+  let rightBottomDiv = document.createElement('div');
   rightBottomDiv.classList.add('plan_item_right_bottom');
 
-  var rightBottomDescDiv = document.createElement('div');
+  let rightBottomDescDiv = document.createElement('div');
   rightBottomDescDiv.classList.add('plan_item_right_bottom_desc');
 
-  var categoryDiv = document.createElement('div');
+  let categoryDiv = document.createElement('div');
   categoryDiv.classList.add('plan_item_right_bottom_desc_category');
   categoryDiv.textContent = category_group_name;
 
-  var nameDiv = document.createElement('div');
+  let nameDiv = document.createElement('div');
   nameDiv.classList.add('plan_item_right_bottom_desc_name');
   nameDiv.textContent = place_name;
 
-  var memoDiv = document.createElement('div');
+  let memoDiv = document.createElement('div');
   memoDiv.classList.add('plan_item_right_bottom_desc_memo');
   memoDiv.textContent = '메모를 입력하세요.';
 
@@ -379,13 +396,13 @@ function createFirstItem(road_address_name, category_group_name, place_name, x, 
   rightBottomDescDiv.appendChild(nameDiv);
   rightBottomDescDiv.appendChild(memoDiv);
 
-  var rightDividerDiv = document.createElement('div');
+  let rightDividerDiv = document.createElement('div');
   rightDividerDiv.classList.add('right_divider');
 
-  var imgAreaDiv = document.createElement('div');
+  let imgAreaDiv = document.createElement('div');
   imgAreaDiv.classList.add('plan_item_right_bottom_img_area');
 
-  var imgElement = document.createElement('img');
+  let imgElement = document.createElement('img');
   imgElement.classList.add('plan_item_right_bottom_img');
   imgElement.src = 'image/dummy.png';
   imgElement.alt = '';
@@ -407,43 +424,44 @@ function createFirstItem(road_address_name, category_group_name, place_name, x, 
   return liElement;
 }
 
-function createMiddleItem(road_address_name, category_group_name, place_name, x, y, idx) {
+function createMiddleItem(id, road_address_name, category_group_name, place_name, x, y, idx) {
   // li 요소 생성
-  var liElement = document.createElement('li');
+  let liElement = document.createElement('li');
   liElement.classList.add('plan_item');
+  liElement.id = id;
 
   // 왼쪽 부분 생성
-  var leftDiv = document.createElement('div');
+  let leftDiv = document.createElement('div');
   leftDiv.classList.add('plan_item_left');
 
   // 첫 번째 선 생성
-  var midPlanItemLeftLineOneDiv = document.createElement('div');
+  let midPlanItemLeftLineOneDiv = document.createElement('div');
   midPlanItemLeftLineOneDiv.classList.add('mid_plan_item_left_line_one');
 
-  var leftLineOneDiv = document.createElement('div');
+  let leftLineOneDiv = document.createElement('div');
   leftLineOneDiv.classList.add('plan_item_left_line_real');
 
   midPlanItemLeftLineOneDiv.appendChild(leftLineOneDiv);
 
   // 왼쪽 인덱스 생성
-  var midPlanItemLeftIndexDiv = document.createElement('div');
+  let midPlanItemLeftIndexDiv = document.createElement('div');
   midPlanItemLeftIndexDiv.classList.add('mid_plan_item_left_index');
 
-  var midPlanItemLeftIndexCircleDiv = document.createElement('div');
+  let midPlanItemLeftIndexCircleDiv = document.createElement('div');
   midPlanItemLeftIndexCircleDiv.classList.add('mid_plan_item_left_index_circle');
   midPlanItemLeftIndexCircleDiv.textContent = idx;
 
-  var planItemLeftIndexLineDiv = document.createElement('div');
+  let planItemLeftIndexLineDiv = document.createElement('div');
   planItemLeftIndexLineDiv.classList.add('plan_item_left_index_line');
 
   midPlanItemLeftIndexDiv.appendChild(midPlanItemLeftIndexCircleDiv);
   midPlanItemLeftIndexDiv.appendChild(planItemLeftIndexLineDiv);
 
   // 두 번째 선 생성
-  var midPlanItemLeftLineTwoDiv = document.createElement('div');
+  let midPlanItemLeftLineTwoDiv = document.createElement('div');
   midPlanItemLeftLineTwoDiv.classList.add('mid_plan_item_left_line_two');
 
-  var leftLineTwoDiv = document.createElement('div');
+  let leftLineTwoDiv = document.createElement('div');
   leftLineTwoDiv.classList.add('plan_item_left_line_real');
 
   midPlanItemLeftLineTwoDiv.appendChild(leftLineTwoDiv);
@@ -453,36 +471,42 @@ function createMiddleItem(road_address_name, category_group_name, place_name, x,
   leftDiv.appendChild(midPlanItemLeftLineTwoDiv);
 
   // 오른쪽 부분 생성
-  var rightDiv = document.createElement('div');
+  let rightDiv = document.createElement('div');
   rightDiv.classList.add('plan_item_right');
 
-  var rightWrapperDiv = document.createElement('div');
+  let rightWrapperDiv = document.createElement('div');
   rightWrapperDiv.classList.add('right_wrapper');
 
-  var rightTopDiv = document.createElement('div');
+  let rightTopDiv = document.createElement('div');
   rightTopDiv.classList.add('plan_item_right_top');
 
-  var rightTopTimeDiv = document.createElement('div');
+  let rightTopTimeDiv = document.createElement('div');
   rightTopTimeDiv.classList.add('plan_item_right_top_time');
   rightTopTimeDiv.textContent = '16:00 - 18:00'; // FIXME: 시간 바꾸기
 
-  rightTopDiv.appendChild(rightTopTimeDiv);
+  let rightTopCloseBtn = document.createElement('img');
+  rightTopCloseBtn.classList.add('plan_item_close_btn');
+  rightTopCloseBtn.src = 'image/close.png';
+  rightTopCloseBtn.setAttribute('onclick', `deleteItem("${id}")`);
 
-  var rightBottomDiv = document.createElement('div');
+  rightTopDiv.appendChild(rightTopTimeDiv);
+  rightTopDiv.appendChild(rightTopCloseBtn);
+
+  let rightBottomDiv = document.createElement('div');
   rightBottomDiv.classList.add('plan_item_right_bottom');
 
-  var rightBottomDescDiv = document.createElement('div');
+  let rightBottomDescDiv = document.createElement('div');
   rightBottomDescDiv.classList.add('plan_item_right_bottom_desc');
 
-  var categoryDiv = document.createElement('div');
+  let categoryDiv = document.createElement('div');
   categoryDiv.classList.add('plan_item_right_bottom_desc_category');
   categoryDiv.textContent = category_group_name;
 
-  var nameDiv = document.createElement('div');
+  let nameDiv = document.createElement('div');
   nameDiv.classList.add('plan_item_right_bottom_desc_name');
   nameDiv.textContent = place_name;
 
-  var memoDiv = document.createElement('div');
+  let memoDiv = document.createElement('div');
   memoDiv.classList.add('plan_item_right_bottom_desc_memo');
   memoDiv.textContent = '메모를 입력하세요.';
 
@@ -490,13 +514,13 @@ function createMiddleItem(road_address_name, category_group_name, place_name, x,
   rightBottomDescDiv.appendChild(nameDiv);
   rightBottomDescDiv.appendChild(memoDiv);
 
-  var rightDividerDiv = document.createElement('div');
+  let rightDividerDiv = document.createElement('div');
   rightDividerDiv.classList.add('right_divider');
 
-  var imgAreaDiv = document.createElement('div');
+  let imgAreaDiv = document.createElement('div');
   imgAreaDiv.classList.add('plan_item_right_bottom_img_area');
 
-  var imgElement = document.createElement('img');
+  let imgElement = document.createElement('img');
   imgElement.classList.add('plan_item_right_bottom_img');
   imgElement.src = 'image/dummy.png';
   imgElement.alt = '';
@@ -518,46 +542,47 @@ function createMiddleItem(road_address_name, category_group_name, place_name, x,
   return liElement;
 }
 
-function createLastItem(road_address_name, category_group_name, place_name, x, y, idx) {
+function createLastItem(id, road_address_name, category_group_name, place_name, x, y, idx) {
   // li 요소 생성
-  var liElement = document.createElement('li');
+  let liElement = document.createElement('li');
   liElement.classList.add('plan_item');
+  liElement.id = id;
 
   // 왼쪽 부분 생성
-  var leftDiv = document.createElement('div');
+  let leftDiv = document.createElement('div');
   leftDiv.classList.add('plan_item_left');
 
   // 첫 번째 선 생성
-  var lastPlanItemLeftLineOneDiv = document.createElement('div');
+  let lastPlanItemLeftLineOneDiv = document.createElement('div');
   lastPlanItemLeftLineOneDiv.classList.add('last_plan_item_left_line_one');
 
-  var leftLineOneDiv = document.createElement('div');
+  let leftLineOneDiv = document.createElement('div');
   leftLineOneDiv.classList.add('plan_item_left_line_real');
 
   lastPlanItemLeftLineOneDiv.appendChild(leftLineOneDiv);
 
   // 왼쪽 인덱스 생성
-  var lastPlanItemLeftIndexDiv = document.createElement('div');
+  let lastPlanItemLeftIndexDiv = document.createElement('div');
   lastPlanItemLeftIndexDiv.classList.add('last_plan_item_left_index');
 
-  var midPlanItemLeftIndexCircleDiv = document.createElement('div');
+  let midPlanItemLeftIndexCircleDiv = document.createElement('div');
   midPlanItemLeftIndexCircleDiv.classList.add('mid_plan_item_left_index_circle');
   midPlanItemLeftIndexCircleDiv.textContent = idx;
 
-  var planItemLeftIndexLineDiv = document.createElement('div');
+  let planItemLeftIndexLineDiv = document.createElement('div');
   planItemLeftIndexLineDiv.classList.add('plan_item_left_index_line');
 
   lastPlanItemLeftIndexDiv.appendChild(midPlanItemLeftIndexCircleDiv);
   lastPlanItemLeftIndexDiv.appendChild(planItemLeftIndexLineDiv);
 
   // 두 번째 선 생성
-  var lastPlanItemLeftLineTwoDiv = document.createElement('div');
+  let lastPlanItemLeftLineTwoDiv = document.createElement('div');
   lastPlanItemLeftLineTwoDiv.classList.add('last_plan_item_left_line_two');
 
-  var leftLineTwoDiv = document.createElement('div');
+  let leftLineTwoDiv = document.createElement('div');
   leftLineTwoDiv.classList.add('last_plan_item_left_line_real');
 
-  var leftLineTwoCircleDiv = document.createElement('div');
+  let leftLineTwoCircleDiv = document.createElement('div');
   leftLineTwoCircleDiv.classList.add('last_plan_item_left_line_real_circle');
 
   lastPlanItemLeftLineTwoDiv.appendChild(leftLineTwoDiv);
@@ -568,36 +593,42 @@ function createLastItem(road_address_name, category_group_name, place_name, x, y
   leftDiv.appendChild(lastPlanItemLeftLineTwoDiv);
 
   // 오른쪽 부분 생성
-  var rightDiv = document.createElement('div');
+  let rightDiv = document.createElement('div');
   rightDiv.classList.add('plan_item_right');
 
-  var rightWrapperDiv = document.createElement('div');
+  let rightWrapperDiv = document.createElement('div');
   rightWrapperDiv.classList.add('right_wrapper');
 
-  var rightTopDiv = document.createElement('div');
+  let rightTopDiv = document.createElement('div');
   rightTopDiv.classList.add('plan_item_right_top');
 
-  var rightTopTimeDiv = document.createElement('div');
+  let rightTopTimeDiv = document.createElement('div');
   rightTopTimeDiv.classList.add('plan_item_right_top_time');
   rightTopTimeDiv.textContent = '19:00 - 20:00';
 
-  rightTopDiv.appendChild(rightTopTimeDiv);
+  let rightTopCloseBtn = document.createElement('img');
+  rightTopCloseBtn.classList.add('plan_item_close_btn');
+  rightTopCloseBtn.src = 'image/close.png';
+  rightTopCloseBtn.setAttribute('onclick', `deleteItem("${id}")`);
 
-  var rightBottomDiv = document.createElement('div');
+  rightTopDiv.appendChild(rightTopTimeDiv);
+  rightTopDiv.appendChild(rightTopCloseBtn);
+
+  let rightBottomDiv = document.createElement('div');
   rightBottomDiv.classList.add('plan_item_right_bottom');
 
-  var rightBottomDescDiv = document.createElement('div');
+  let rightBottomDescDiv = document.createElement('div');
   rightBottomDescDiv.classList.add('plan_item_right_bottom_desc');
 
-  var categoryDiv = document.createElement('div');
+  let categoryDiv = document.createElement('div');
   categoryDiv.classList.add('plan_item_right_bottom_desc_category');
   categoryDiv.textContent = category_group_name;
 
-  var nameDiv = document.createElement('div');
+  let nameDiv = document.createElement('div');
   nameDiv.classList.add('plan_item_right_bottom_desc_name');
   nameDiv.textContent = place_name;
 
-  var memoDiv = document.createElement('div');
+  let memoDiv = document.createElement('div');
   memoDiv.classList.add('plan_item_right_bottom_desc_memo');
   memoDiv.textContent = '메모를 입력하세요.';
 
@@ -605,13 +636,13 @@ function createLastItem(road_address_name, category_group_name, place_name, x, y
   rightBottomDescDiv.appendChild(nameDiv);
   rightBottomDescDiv.appendChild(memoDiv);
 
-  var rightDividerDiv = document.createElement('div');
+  let rightDividerDiv = document.createElement('div');
   rightDividerDiv.classList.add('right_divider');
 
-  var imgAreaDiv = document.createElement('div');
+  let imgAreaDiv = document.createElement('div');
   imgAreaDiv.classList.add('plan_item_right_bottom_img_area');
 
-  var imgElement = document.createElement('img');
+  let imgElement = document.createElement('img');
   imgElement.classList.add('plan_item_right_bottom_img');
   imgElement.src = 'image/dummy.png';
   imgElement.alt = '';
